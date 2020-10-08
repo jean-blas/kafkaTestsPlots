@@ -10,11 +10,37 @@ import (
 	"time"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/palette"
+	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
+
+var (
+	n      int // numero of the plot currently drawn (used to increment the color)
+	N      int // the maximum number of plots in the same graphics
+	colors []color.Color
+)
+
+func init() {
+	n = 0
+	N = 1
+}
+
+// get a color from the pre-defined palette
+func getColor() color.Color {
+	if colors == nil {
+		colors = palette.Reverse(moreland.SmoothBlueRed()).Palette(N + 1).Colors()
+	}
+	c := colors[n]
+	n++
+	if n >= N {
+		n = 0
+	}
+	return c
+}
 
 // Create a plot with title and axis labels
 func NewPlot(title, xlabel, ylabel string) (*plot.Plot, error) {
@@ -84,8 +110,7 @@ func AddWithLine(data []float64, legend string, p *plot.Plot) error {
 	if err != nil {
 		return err
 	}
-	c1, c2, c3 := uint8(rand.Int()%255), uint8(rand.Int()%255), uint8(rand.Int()%255)
-	lpLine.Color = color.RGBA{R: c1, G: c2, B: c3, A: 255}
+	lpLine.Color = getColor()
 	p.Add(lpLine)
 	if legend != "" {
 		p.Legend.Add(legend, lpLine)
@@ -100,9 +125,8 @@ func AddWithPoints(data []float64, legend string, p *plot.Plot) error {
 		return err
 	}
 	points.Radius = 1
-	c1, c2, c3 := uint8(rand.Int()%255), uint8(rand.Int()%255), uint8(rand.Int()%255)
 	points.Shape = draw.CircleGlyph{}
-	points.Color = color.RGBA{R: c1, G: c2, B: c3, A: 255}
+	points.Color = getColor()
 	p.Add(points)
 	if legend != "" {
 		p.Legend.Add(legend, points)
@@ -151,12 +175,16 @@ func AddWithErrXY(x, y, devs []float64, legend string, p *plot.Plot) error {
 	}
 	scatter.Radius = 1
 	scatter.Shape = draw.CircleGlyph{}
-	c1, c2, c3 := uint8(rand.Int()%255), uint8(rand.Int()%255), uint8(rand.Int()%255)
-	scatter.Color = color.RGBA{R: c1, G: c2, B: c3, A: 255}
-	yerrs.Color = color.RGBA{R: c1, G: c2, B: c3, A: 255}
+	c := getColor()
+	scatter.Color = c
+	yerrs.Color = c
 	p.Add(scatter, yerrs)
 	if legend != "" {
 		p.Legend.Add(legend, scatter)
+		p.Legend.Padding = -1.
+		p.Legend.YOffs = -30
+		p.Legend.YAlign = 0.
+		p.Legend.YPosition = -1
 	}
 	p.Legend.Top = true
 	return nil
@@ -169,14 +197,41 @@ func AddWithPointsXY(x, y []float64, legend string, p *plot.Plot) error {
 		return err
 	}
 	points.Radius = 2
-	c1, c2, c3 := uint8(rand.Int()%255), uint8(rand.Int()%255), uint8(rand.Int()%255)
 	points.Shape = draw.CircleGlyph{}
-	points.Color = color.RGBA{R: c1, G: c2, B: c3, A: 255}
+	if err != nil {
+		return err
+	}
+	points.Color = getColor()
 	p.Add(points)
 	if legend != "" {
 		p.Legend.Add(legend, points)
+		p.Legend.Padding = -1.
+		p.Legend.YOffs = 140
+		p.Legend.YAlign = 0.
+		p.Legend.YPosition = -1
 	}
-	p.Legend.Top = true
+	p.Legend.Top = false
+	p.Y.Tick.Marker = commaTicks{}
+
+	return nil
+}
+
+// AddWithLineXY Draw the data with line
+func AddWithLineXY(x, y []float64, legend string, p *plot.Plot) error {
+	line, err := plotter.NewLine(CreatePointsXY(x, y))
+	if err != nil {
+		return err
+	}
+	line.Color = getColor()
+	p.Add(line)
+	if legend != "" {
+		p.Legend.Add(legend, line)
+		p.Legend.Padding = -1.
+		p.Legend.YOffs = 120
+		p.Legend.YAlign = 0.
+		p.Legend.YPosition = -1
+	}
+	p.Legend.Top = false
 	p.Y.Tick.Marker = commaTicks{}
 	return nil
 }

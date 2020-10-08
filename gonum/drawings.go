@@ -43,6 +43,9 @@ func compareConfigs(confs []Confs) {
 	if err := compareMeansErr(cfgs, "Means", "meansErr_compar.png"); err != nil {
 		panic(err)
 	}
+	if err := compareMeansLine(cfgs, "Means", "means_compar.png"); err != nil {
+		panic(err)
+	}
 }
 
 // Draw a single config "c" according to the Draws enum "d" value
@@ -173,7 +176,7 @@ func compareNbMsgPerSec(confs []Config, title, outPng string) error {
 			return err
 		}
 		print(c.abscis, trput, "NbMsgPerSec")
-		legend := fmt.Sprintf("size = %0.1f Mb", c.mb)
+		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
 		if err = plotfunc.AddWithPointsXY(c.abscis, trput, legend, p); err != nil {
 			return err
 		}
@@ -231,7 +234,7 @@ func compareThroughputs(confs []Config, title, outPng string) error {
 			return err
 		}
 		print(c.abscis, trput, "Throughput")
-		legend := fmt.Sprintf("size = %0.1f Mb", c.mb)
+		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
 		if err = plotfunc.AddWithPointsXY(c.abscis, trput, legend, p); err != nil {
 			return err
 		}
@@ -352,8 +355,30 @@ func compareMeansErr(confs []Config, title, outPng string) error {
 			return err
 		}
 		print(c.abscis, means, "MeansErr")
-		legend := fmt.Sprintf("size = %0.1f Mb", c.mb)
+		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
 		if err = plotfunc.AddWithErrXY(c.abscis, means, devs, legend, p); err != nil {
+			return err
+		}
+	}
+	// Save the plot to a PNG file.
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+}
+
+// Comparison of means for different configs
+func compareMeansLine(confs []Config, title, outPng string) error {
+	// Create the plot
+	p, err := plotfunc.NewPlot(title, confs[0].xlabel, "times (ms)")
+	if err != nil {
+		return err
+	}
+	for _, c := range confs {
+		means, _, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
+		if err != nil {
+			return err
+		}
+		print(c.abscis, means, "Means")
+		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
+		if err = plotfunc.AddWithLineXY(c.abscis, means, legend, p); err != nil {
 			return err
 		}
 	}
