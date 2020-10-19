@@ -9,11 +9,12 @@ import (
 	"plots/plotfunc"
 	"plots/sliceutil"
 	"plots/stats"
-	"strconv"
 
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
+
+var ComparePNGsuffix string // A suffixe to be added to the PNG when comparing configs
 
 // Print the values of x and y to screen
 func print(x, y []float64, label string) {
@@ -34,17 +35,35 @@ func compareConfigs(confs []Confs) {
 		cc.prepare()
 		cfgs[i] = cc
 	}
-	if err := compareThroughputs(cfgs, "Throughputs", "throuputs_compar.png"); err != nil {
+	if err := compareThroughputs(cfgs); err != nil {
 		panic(err)
 	}
-	if err := compareNbMsgPerSec(cfgs, "Msg / s", "nbMsgPerSec_compar.png"); err != nil {
+	if err := compareNbMsgPerSec(cfgs); err != nil {
 		panic(err)
 	}
-	if err := compareMeansErr(cfgs, "Means", "meansErr_compar.png"); err != nil {
+	if err := compareMeansErr(cfgs); err != nil {
 		panic(err)
 	}
-	if err := compareMeansLine(cfgs, "Means", "means_compar.png"); err != nil {
+	if err := compareMeansLine(cfgs); err != nil {
 		panic(err)
+	}
+}
+
+// used to pass the func as first citizen
+type fdraw func(string, int) error
+
+// Draw the function for one or all files, according to the value of "n"
+func drawCFiles(c Config, n int, f fdraw) {
+	if n < 0 {
+		for _, file := range c.files {
+			if err := f(file, c.nbPtsDiscard); err != nil {
+				panic(err)
+			}
+		}
+	} else {
+		if err := f(c.files[n], c.nbPtsDiscard); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -52,96 +71,35 @@ func compareConfigs(confs []Confs) {
 // "n" is the number of the config sample file (-1 = draw all files of the config)
 func drawConfig(c Config, d Draws, n int) {
 	c.prepare()
-	base := filepath.Base(c.root)
-	title := base + c.title
 
 	if d == Dall || d == Dfile {
-		if n < 0 {
-			for _, f := range c.files {
-				if err := drawFile(f, c.nbPtsDiscard); err != nil {
-					panic(err)
-				}
-			}
-		} else {
-			if err := drawFile(c.files[n], c.nbPtsDiscard); err != nil {
-				panic(err)
-			}
-		}
+		drawCFiles(c, n, drawFile)
+	}
+	if d == Dall || d == DslideFile {
+		drawCFiles(c, n, drawSlideFile)
 	}
 	if d == Dall || d == DhistoFile {
-		if n < 0 {
-			for _, f := range c.files {
-				if err := drawHistoFile(f, c.nbPtsDiscard); err != nil {
-					panic(err)
-				}
-			}
-		} else {
-			if err := drawHistoFile(c.files[n], c.nbPtsDiscard); err != nil {
-				panic(err)
-			}
-		}
+		drawCFiles(c, n, drawHistoFile)
 	}
 	if d == Dall || d == DmeansFile {
-		if err := drawMeansFiles(c.files, c.abscis, c.nbPtsDiscard, c.xlabel, "Mean "+title, base+"_mean.png"); err != nil {
+		if err := drawMeansFiles(c); err != nil {
 			panic(err)
 		}
 	}
 	if d == Dall || d == DmeansErrFiles {
-		if err := drawMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard, c.xlabel, "Mean "+title, base+"_mean_err.png"); err != nil {
+		if err := drawMeansErrFiles(c); err != nil {
 			panic(err)
 		}
 	}
-	if d == Dall || d == DslideFile {
-		if n < 0 {
-			for _, f := range c.files {
-				if err := drawSlideFile(f, NVAL, c.nbPtsDiscard, c.xlabel, fmt.Sprintf("%s (nval=%d)", title, NVAL)); err != nil {
-					panic(err)
-				}
-			}
-		} else {
-			if err := drawSlideFile(c.files[n], NVAL, c.nbPtsDiscard, c.xlabel, fmt.Sprintf("%s (nval=%d)", title, NVAL)); err != nil {
-				panic(err)
-			}
-		}
-	}
 	if d == Dall || d == Dthroughput {
-		if err := drawThroughputsFiles(c.files, c.abscis, c.nbPtsDiscard, c.xlabel, "Throughput "+title, base+"_throughputs.png",
-			c.abscisIsNb, c.abscisIsSz, c.mb, c.ndata); err != nil {
+		if err := drawThroughputsFiles(c); err != nil {
 			panic(err)
 		}
 	}
 	if d == Dall || d == DnbMsgPerSec {
-		if err := drawNbMsgPerSecFiles(c.files, c.abscis, c.nbPtsDiscard, c.xlabel, "Nb msg / sec "+title, base+"_nbmespersec.png",
-			c.abscisIsNb, c.ndata); err != nil {
+		if err := drawNbMsgPerSecFiles(c); err != nil {
 			panic(err)
 		}
-	}
-}
-
-// Prepare the config object before using it in the draw functions
-func (c *Config) prepare() {
-	// Replace sufix with the real path (root + prefix + sufix + postfix) for each sufix
-	sfx := make([]string, len(c.sufix))
-	for i := range sfx {
-		sfx[i] = filepath.Join(c.root, c.prefix+c.sufix[i]+c.postfix)
-	}
-	c.files = sfx
-	// Compute the abscissa
-	abs := make([]float64, len(c.sufix))
-	for i := range c.sufix {
-		vi, err := strconv.Atoi(c.sufix[i])
-		if err != nil {
-			panic(err)
-		}
-		abs[i] = float64(vi)
-	}
-	c.abscis = abs
-	// default size of messages if not set
-	if c.mb == 0 {
-		c.mb = 0.1
-	}
-	if c.ndata == 0 {
-		c.ndata = 2000
 	}
 }
 
@@ -164,37 +122,36 @@ func computeNbMsgPerSecFiles(files []string, sizes []float64, nbPtsDiscard, ndat
 }
 
 // Comparison of number of messages per seconds for different configs
-func compareNbMsgPerSec(confs []Config, title, outPng string) error {
+func compareNbMsgPerSec(confs []Config) error {
 	// Create the plot
-	p, err := plotfunc.NewPlot(title, confs[0].xlabel, "nb of Msg / s")
+	p, err := plotfunc.NewPlot("Msg / s", confs[0].xlabel, "nb of Msg / s")
 	if err != nil {
 		return err
 	}
-	for _, c := range confs {
+	for i, c := range confs {
 		trput, err := computeNbMsgPerSecFiles(c.files, c.abscis, c.nbPtsDiscard, c.ndata, c.abscisIsNb)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, trput, "NbMsgPerSec")
-		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
-		if err = plotfunc.AddWithPointsXY(c.abscis, trput, legend, p); err != nil {
+		if err = plotfunc.AddWithLineXY(c.abscis, trput, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
 	// Save the plot to a PNG file.
-	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, confs[0].xlabel+"_nbMsgPerSec_"+ComparePNGsuffix+".png")
 }
 
 // Compute the number of messages per second for every dataset and draw it
 // files : files to parse
 // sizes : files corresponding abcissa
-func drawNbMsgPerSecFiles(files []string, sizes []float64, nbPtsDiscard int, xlabel, title, outPng string, abscisIsNb bool,
-	ndata int) error {
-	trput, err := computeNbMsgPerSecFiles(files, sizes, nbPtsDiscard, ndata, abscisIsNb)
+func drawNbMsgPerSecFiles(c Config) error {
+	trput, err := computeNbMsgPerSecFiles(c.files, c.abscis, c.nbPtsDiscard, c.ndata, c.abscisIsNb)
 	if err != nil {
 		return err
 	}
-	return drawPointsXY(sizes, trput, xlabel, "nb of msg / s", title, outPng)
+	base := filepath.Base(c.root)
+	return drawPointsXY(c.abscis, trput, c.xlabel, "nb of msg / s", base+c.title, base+"_nbmespersec.png")
 }
 
 // Compute the throughput for each file
@@ -222,50 +179,52 @@ func computeThoughputFiles(files []string, sizes []float64, mb float64, ndata, n
 }
 
 // Comparison of throughputs for different configs
-func compareThroughputs(confs []Config, title, outPng string) error {
+func compareThroughputs(confs []Config) error {
 	// Create the plot
-	p, err := plotfunc.NewPlot(title, confs[0].xlabel, "nb of Mb / s")
+	p, err := plotfunc.NewPlot("Throughputs", confs[0].xlabel, "nb of Mb / s")
 	if err != nil {
 		return err
 	}
-	for _, c := range confs {
+	for i, c := range confs {
 		trput, err := computeThoughputFiles(c.files, c.abscis, c.mb, c.ndata, c.nbPtsDiscard, c.abscisIsNb, c.abscisIsSz)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, trput, "Throughput")
-		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
-		if err = plotfunc.AddWithPointsXY(c.abscis, trput, legend, p); err != nil {
+		if err = plotfunc.AddWithLineXY(c.abscis, trput, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
 	// Save the plot to a PNG file.
-	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, confs[0].xlabel+"_throughputs_"+ComparePNGsuffix+".png")
 }
 
 // Compute the throughput for every dataset and draw it
 // files : files to parse
 // sizes : files corresponding abcissa
-func drawThroughputsFiles(files []string, sizes []float64, nbPtsDiscard int, xlabel, title, outPng string, abscisIsNb,
-	abscisIsSz bool, mb float64, ndata int) error {
-	trput, err := computeThoughputFiles(files, sizes, mb, ndata, nbPtsDiscard, abscisIsNb, abscisIsSz)
+// func drawThroughputsFiles(files []string, sizes []float64, nbPtsDiscard int, xlabel, title, outPng string, abscisIsNb,
+// abscisIsSz bool, mb float64, ndata int) error {
+func drawThroughputsFiles(c Config) error {
+	trput, err := computeThoughputFiles(c.files, c.abscis, c.mb, c.ndata, c.nbPtsDiscard, c.abscisIsNb, c.abscisIsSz)
 	if err != nil {
 		return err
 	}
-	print(sizes, trput, "Throughput")
-	return drawPointsXY(sizes, trput, xlabel, "nb of Mb / s", title, outPng)
+	print(c.abscis, trput, "Throughput")
+	base := filepath.Base(c.root)
+	return drawPointsXY(c.abscis, trput, c.xlabel, "nb of Mb / s", base+c.title, base+"_throughputs.png")
 }
 
 // call ParseFile (with the given filename)
 // call slide (with "nval", the number of samples to slide)
-func drawSlideFile(filename string, nval int, nbPtsDiscard int, xlabel, title string) error {
+func drawSlideFile(filename string, nbPtsDiscard int) error {
 	fvalues, err := parseFile(filename)
 	if err != nil {
 		return err
 	}
-	outPng := fmt.Sprintf("%s_nval%d_slide.png", filepath.Base(filename), nval)
-	fmt.Println(outPng)
-	return drawSlide(fvalues, nval, nbPtsDiscard, xlabel, "times (ms)", title, outPng)
+	base := filepath.Base(filename)
+	outPng := fmt.Sprintf("%s_nval%d_slide.png", base, NVAL)
+	title := fmt.Sprintf("%s\n(nval=%d)", base, NVAL)
+	return drawSlide(fvalues, NVAL, nbPtsDiscard, "Msg number", "times (ms)", title, outPng)
 }
 
 // slide the data with an interval of nval data values
@@ -318,7 +277,7 @@ func drawHisto(data []float64, title, outPng string, nbPtsDiscard int) error {
 	// Compute the moments
 	mean, adev, sdev, skew, curt, err := stats.Moments(data[nbPtsDiscard:])
 	if PRINT {
-		fmt.Println(title, mean, adev, sdev, skew, curt)
+		fmt.Printf("Moments : mean=%.3e adev=%.3e sdev=%.3e skew=%.3e curt=%.3e %s\n", mean, adev, sdev, skew, curt, title)
 	}
 	// Create the plot
 	p, err := plotfunc.NewPlot(title, "Latency (ms)", "Nb of values")
@@ -330,7 +289,7 @@ func drawHisto(data []float64, title, outPng string, nbPtsDiscard int) error {
 	for i := range v {
 		v[i] = data[i+nbPtsDiscard]
 	}
-	h, err := plotter.NewHist(v, 15) // number of columns of the histogram
+	h, err := plotter.NewHist(v, NCOL)
 	if err != nil {
 		return err
 	}
@@ -343,47 +302,45 @@ func drawHisto(data []float64, title, outPng string, nbPtsDiscard int) error {
 }
 
 // Comparison of means with deviations for different configs
-func compareMeansErr(confs []Config, title, outPng string) error {
+func compareMeansErr(confs []Config) error {
 	// Create the plot
-	p, err := plotfunc.NewPlot(title, confs[0].xlabel, "times (ms)")
+	p, err := plotfunc.NewPlot("Means", confs[0].xlabel, "times (ms)")
 	if err != nil {
 		return err
 	}
-	for _, c := range confs {
+	for i, c := range confs {
 		means, devs, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, means, "MeansErr")
-		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
-		if err = plotfunc.AddWithErrXY(c.abscis, means, devs, legend, p); err != nil {
+		if err = plotfunc.AddWithErrXY(c.abscis, means, devs, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
 	// Save the plot to a PNG file.
-	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, confs[0].xlabel+"_meansErr_"+ComparePNGsuffix+".png")
 }
 
 // Comparison of means for different configs
-func compareMeansLine(confs []Config, title, outPng string) error {
+func compareMeansLine(confs []Config) error {
 	// Create the plot
-	p, err := plotfunc.NewPlot(title, confs[0].xlabel, "times (ms)")
+	p, err := plotfunc.NewPlot("Means", confs[0].xlabel, "times (ms)")
 	if err != nil {
 		return err
 	}
-	for _, c := range confs {
+	for i, c := range confs {
 		means, _, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, means, "Means")
-		legend := fmt.Sprintf("size = %0.2f Mb", c.mb)
-		if err = plotfunc.AddWithLineXY(c.abscis, means, legend, p); err != nil {
+		if err = plotfunc.AddWithLineXY(c.abscis, means, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
 	// Save the plot to a PNG file.
-	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, confs[0].xlabel+"_means_"+ComparePNGsuffix+".png")
 }
 
 // Compute the means and deviations for each file
@@ -400,7 +357,7 @@ func computeMeansErrFiles(files []string, sizes []float64, nbPtsDiscard int) ([]
 			return nil, nil, err
 		}
 		if PRINT {
-			fmt.Println(filepath.Base(f), mean, adev, sdev, skew, curt)
+			fmt.Printf("Moments : mean=%.3e adev=%.3e sdev=%.3e skew=%.3e curt=%.3e %s\n", mean, adev, sdev, skew, curt, filepath.Base(f))
 		}
 		means[i] = mean
 		devs[i] = sdev / math.Sqrt(float64(len(fvalues)))
@@ -411,12 +368,13 @@ func computeMeansErrFiles(files []string, sizes []float64, nbPtsDiscard int) ([]
 // Parse each file of suffixes
 // compute the means and draw it with the error bars
 // save the plot to a PNG file
-func drawMeansErrFiles(files []string, x []float64, nbPtsDiscard int, xlabel, title, outPng string) error {
-	means, devs, err := computeMeansErrFiles(files, x, nbPtsDiscard)
+func drawMeansErrFiles(c Config) error {
+	base := filepath.Base(c.root)
+	means, devs, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
 	if err != nil {
 		return err
 	}
-	return drawErrsXY(x, means, devs, xlabel, "times (ms)", title, outPng)
+	return drawErrsXY(c.abscis, means, devs, c.xlabel, "times (ms)", base+c.title, base+"_mean_err.png")
 }
 
 // Draw the x,y  for every dataset with deviation as Y error bars
@@ -427,7 +385,7 @@ func drawErrsXY(x, y, devs []float64, xlabel, ylabel, title, outPng string) erro
 		return err
 	}
 	// Add the means with errors
-	plotfunc.AddWithErrXY(x, y, devs, "", p)
+	plotfunc.AddWithErrXY(x, y, devs, "", 0, p)
 
 	// a, b, siga, sigb, chi2, sigdat := plotfunc.AddLinearfit(x[1:], y[1:], p)
 	// if PRINT {
@@ -448,21 +406,22 @@ func drawErrsXY(x, y, devs []float64, xlabel, ylabel, title, outPng string) erro
 
 // Compute the means for every dataset and draw it
 // Compute the linear regression that fits the means and draw it
-func drawMeansFiles(files []string, x []float64, nbPtsDiscard int, xlabel, title, outPng string) error {
+func drawMeansFiles(c Config) error {
 	var means []float64
 	// Parse the files and compute the means
-	for _, f := range files {
+	for _, f := range c.files {
 		values, err := parseFile(f)
 		if err != nil {
 			return err
 		}
-		ave, adev, sdev, skew, curt, err := stats.Moments(values[nbPtsDiscard:])
+		ave, adev, sdev, skew, curt, err := stats.Moments(values[c.nbPtsDiscard:])
 		if PRINT {
-			fmt.Println(ave, adev, sdev, skew, curt)
+			fmt.Printf("Moments : mean=%.3e adev=%.3e sdev=%.3e skew=%.3e curt=%.3e %s\n", ave, adev, sdev, skew, curt, c.title)
 		}
 		means = append(means, ave)
 	}
-	return drawLinearFit(x, means, xlabel, "times (ms)", title, outPng)
+	base := filepath.Base(c.root)
+	return drawLinearFit(c.abscis, means, c.xlabel, "times (ms)", base+c.title, base+"_mean.png")
 }
 
 // Draw the data
@@ -473,7 +432,7 @@ func drawPointsXY(x, y []float64, xlabel, ylabel, title, outPng string) error {
 		return err
 	}
 	// Add the data
-	if err = plotfunc.AddWithPointsXY(x, y, "", p); err != nil {
+	if err = plotfunc.AddWithPointsXY(x, y, "", 0, p); err != nil {
 		return err
 	}
 	// Save the plot to a PNG file.
@@ -489,13 +448,13 @@ func drawLinearFit(x, means []float64, xlabel, ylabel, title, outPng string) err
 		return err
 	}
 	// Add the means
-	if err = plotfunc.AddWithPointsXY(x, means, "", p); err != nil {
+	if err = plotfunc.AddWithPointsXY(x, means, "", 0, p); err != nil {
 		return err
 	}
 	// Add a regression line
 	a, b, siga, sigb, chi2, sigdat := plotfunc.AddLinearfit(x[1:], means[1:], p)
 	if PRINT {
-		fmt.Println("drawMeansErr moments", a, b, siga, sigb, chi2, sigdat)
+		fmt.Printf("Linear fit : a=%.3e b=%.3e siga=%.3e sigb=%.3e chi2=%.3e sigdat=%.3e %s\n", a, b, siga, sigb, chi2, sigdat, title)
 	}
 	// Save the plot to a PNG file.
 	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
@@ -507,20 +466,21 @@ func drawFile(filename string, nbPtsDiscard int) error {
 	if err != nil {
 		return err
 	}
+	base := filepath.Base(filename)
 	// Create the plot
-	p, err := plotfunc.NewPlot("Scattered E2E latency", "Msg number", "Latency (ms)")
+	p, err := plotfunc.NewPlot(base, "Msg number", "times (ms)")
 	if err != nil {
 		return err
 	}
 	p.Legend.Top = true
 	// Add the data
-	if err = plotfunc.AddWithPoints(fvalues, filepath.Base(filename), p); err != nil {
+	if err = plotfunc.AddWithPoints(fvalues, base, 0, p); err != nil {
 		return err
 	}
 	// Compute mean regression
 	ave, adev, sdev, skew, curt, err := stats.Moments(fvalues[nbPtsDiscard:])
 	if PRINT {
-		fmt.Println(filepath.Base(filename), ave, adev, sdev, skew, curt)
+		fmt.Printf("Moments : ave=%.3e adev=%.3e sdev=%.3e skew=%.3e curt=%.3e %s\n", ave, adev, sdev, skew, curt, filepath.Base(filename))
 	}
 	plotfunc.AddHLine(ave, float64(nbPtsDiscard), float64(len(fvalues)), "", color.Black, p)
 	// Save the plot to a PNG file.

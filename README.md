@@ -19,19 +19,20 @@
 
 ## B. Usage
 
-1. Fill the configuration _Configs_ item in configs.go
-1. Set the _draw_, _conf_ parameters
-1. go run configs.go drawings.go
+1. Fill the configuration _Configs_ item in _inputs.go_
+1. Set the _draw_, _conf_ parameters in _configs.go_
+1. go run configs.go drawings.go inputs.go
 
 You may set the variable _PRINT_ to false to NOT display the moments while computing them for each diagram.
 
 You can vary the size of the window in the sliding diagrams with the parameter _NVAL_
 
+You can set the number of columns in the histograms with the parameter _NCOL_
+
 ## C. Examples
-1. ### Dcompare 
+1. ### Automatic comparison of configs
 comparison beween 3 configs (CfetchMinBytes_100k, CfetchMinBytes_300k, CfetchMinBytes_3000k)
 
- 		var draw Draws = Dcompare
 		var conf []Confs = []Confs{CfetchMinBytes_100k, CfetchMinBytes_300k, CfetchMinBytes_3000k}
 
 2. ### fileNb = -1 

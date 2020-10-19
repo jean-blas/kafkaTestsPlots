@@ -19,27 +19,37 @@ import (
 )
 
 var (
-	n      int // numero of the plot currently drawn (used to increment the color)
+	RED         = color.RGBA{R: 255, A: 255}
+	BLUE        = color.RGBA{B: 255, A: 255}
+	GREEN       = color.RGBA{B: 50, G: 190, R: 50, A: 255}
+	ORANGE      = color.RGBA{B: 15, G: 175, R: 255, A: 255}
+	PINK        = color.RGBA{B: 255, R: 200, A: 255}
+	YELLOW      = color.RGBA{G: 255, R: 255, A: 255}
+	ROSE        = color.RGBA{B: 200, R: 255, A: 255}
+	LIGHT_BLUE  = color.RGBA{B: 255, G: 255, A: 255}
+	LIGHT_GREEN = color.RGBA{B: 150, G: 255, R: 150, A: 255}
+	BLACK       = color.RGBA{B: 0, G: 0, R: 0, A: 255}
+)
+
+var (
 	N      int // the maximum number of plots in the same graphics
-	colors []color.Color
+	colors = []color.Color{RED, BLUE, GREEN, ORANGE, PINK, YELLOW, ROSE, LIGHT_BLUE, LIGHT_GREEN, BLACK}
 )
 
 func init() {
-	n = 0
-	N = 1
+	N = len(colors)
 }
 
-// get a color from the pre-defined palette
-func getColor() color.Color {
-	if colors == nil {
-		colors = palette.Reverse(moreland.SmoothBlueRed()).Palette(N + 1).Colors()
+// Get a color from the pre-defined palette
+func getColor(n int) color.Color {
+	l := len(colors)
+	if N > l {
+		colors = append(colors, palette.Reverse(moreland.SmoothBlueRed()).Palette(N+1-l).Colors()...)
 	}
-	c := colors[n]
-	n++
 	if n >= N {
-		n = 0
+		return colors[0]
 	}
-	return c
+	return colors[n]
 }
 
 // Create a plot with title and axis labels
@@ -93,9 +103,7 @@ func AddStraightLine(xmin, ymin, xmax, ymax float64, legend string, c color.Colo
 	}
 	line.Color = c
 	p.Add(line)
-	if legend != "" {
-		p.Legend.Add(legend, line)
-	}
+	addLegend(legend, p, line, false, 0)
 	return nil
 }
 
@@ -105,32 +113,28 @@ func SimpleAdd(data []float64, legend string, p *plot.Plot) error {
 }
 
 // AddWithLine Draw the data with a line
-func AddWithLine(data []float64, legend string, p *plot.Plot) error {
+func AddWithLine(data []float64, legend string, n int, p *plot.Plot) error {
 	lpLine, err := plotter.NewLine(CreatePoints(data))
 	if err != nil {
 		return err
 	}
-	lpLine.Color = getColor()
+	lpLine.Color = getColor(n)
 	p.Add(lpLine)
-	if legend != "" {
-		p.Legend.Add(legend, lpLine)
-	}
+	addLegend(legend, p, lpLine, true, 0)
 	return nil
 }
 
 // AddWithPoints Draw the data with points
-func AddWithPoints(data []float64, legend string, p *plot.Plot) error {
+func AddWithPoints(data []float64, legend string, n int, p *plot.Plot) error {
 	points, err := plotter.NewScatter(CreatePoints(data))
 	if err != nil {
 		return err
 	}
 	points.Radius = 1
 	points.Shape = draw.CircleGlyph{}
-	points.Color = getColor()
+	points.Color = getColor(n)
 	p.Add(points)
-	if legend != "" {
-		p.Legend.Add(legend, points)
-	}
+	addLegend(legend, p, points, true, 0)
 	return nil
 }
 
@@ -154,7 +158,7 @@ type errPoints struct {
 }
 
 // AddWithErrXY Draw the data (x, y) with their error bars (devs)
-func AddWithErrXY(x, y, devs []float64, legend string, p *plot.Plot) error {
+func AddWithErrXY(x, y, devs []float64, legend string, n int, p *plot.Plot) error {
 	rand.Seed(time.Now().UnixNano())
 	xys := make(plotter.XYs, len(y))
 	yer := make(plotter.YErrors, len(y))
@@ -175,65 +179,52 @@ func AddWithErrXY(x, y, devs []float64, legend string, p *plot.Plot) error {
 	}
 	scatter.Radius = 1
 	scatter.Shape = draw.CircleGlyph{}
-	c := getColor()
+	c := getColor(n)
 	scatter.Color = c
 	yerrs.Color = c
 	p.Add(scatter, yerrs)
-	if legend != "" {
-		p.Legend.Add(legend, scatter)
-		p.Legend.Padding = -1.
-		p.Legend.YOffs = -30
-		p.Legend.YAlign = 0.
-		p.Legend.YPosition = -1
-	}
-	p.Legend.Top = true
+	addLegend(legend, p, scatter, false, 120)
 	return nil
 }
 
 // AddWithPoints Draw the data with points
-func AddWithPointsXY(x, y []float64, legend string, p *plot.Plot) error {
+func AddWithPointsXY(x, y []float64, legend string, n int, p *plot.Plot) error {
 	points, err := plotter.NewScatter(CreatePointsXY(x, y))
 	if err != nil {
 		return err
 	}
 	points.Radius = 2
 	points.Shape = draw.CircleGlyph{}
-	if err != nil {
-		return err
-	}
-	points.Color = getColor()
+	points.Color = getColor(n)
 	p.Add(points)
-	if legend != "" {
-		p.Legend.Add(legend, points)
-		p.Legend.Padding = -1.
-		p.Legend.YOffs = 140
-		p.Legend.YAlign = 0.
-		p.Legend.YPosition = -1
-	}
-	p.Legend.Top = false
+	addLegend(legend, p, points, false, 120)
 	p.Y.Tick.Marker = commaTicks{}
-
 	return nil
 }
 
 // AddWithLineXY Draw the data with line
-func AddWithLineXY(x, y []float64, legend string, p *plot.Plot) error {
+func AddWithLineXY(x, y []float64, legend string, n int, p *plot.Plot) error {
 	line, err := plotter.NewLine(CreatePointsXY(x, y))
 	if err != nil {
 		return err
 	}
-	line.Color = getColor()
+	line.Color = getColor(n)
 	p.Add(line)
+	addLegend(legend, p, line, false, 10)
+	p.Y.Tick.Marker = commaTicks{}
+	return nil
+}
+
+// Add a legend with some position tuned
+func addLegend(legend string, p *plot.Plot, thumb plot.Thumbnailer, top bool, yoff vg.Length) {
 	if legend != "" {
-		p.Legend.Add(legend, line)
+		p.Legend.Add(legend, thumb)
 		p.Legend.Padding = -1.
-		p.Legend.YOffs = 120
+		p.Legend.YOffs = yoff
 		p.Legend.YAlign = 0.
 		p.Legend.YPosition = -1
 	}
-	p.Legend.Top = false
-	p.Y.Tick.Marker = commaTicks{}
-	return nil
+	p.Legend.Top = top
 }
 
 // CreatePoints Transform a []float64 into a plotter
