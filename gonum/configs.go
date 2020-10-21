@@ -1,6 +1,9 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	"path/filepath"
 	"plots/plotfunc"
 	"strconv"
@@ -9,6 +12,7 @@ import (
 
 // Definition of a Config fields
 type Config struct {
+	name         string   // unique name of the config
 	nbPtsDiscard int      // [optional] number of points to discard from the beginning when fitting (default 0)
 	root         string   // root folder of the data files
 	prefix       string   // constant prefix in the name of all data files
@@ -58,6 +62,29 @@ func (c *Config) prepare() {
 	}
 }
 
+// Return the index of the config that has the same name, or -1 if not found
+func findConfigIdx(name string) int {
+	for i, conf := range Configs {
+		if name == conf.name {
+			return i
+		}
+	}
+	return -1
+}
+
+// Transform the slice of strings into the slice of corresponding configs
+func toConfigs(cs []string) ([]Config, error) {
+	cfg := make([]Config, len(cs))
+	for i, name := range cs {
+		idx := findConfigIdx(name)
+		if idx == -1 {
+			return nil, errors.New("Config not found with name : " + name)
+		}
+		cfg[i] = Configs[idx]
+	}
+	return cfg, nil
+}
+
 // Add the diagram types here
 type Draws int
 
@@ -72,9 +99,22 @@ const (
 	DnbMsgPerSec                // Draw the number of messages per second
 )
 
+var draws = []Draws{
+	Dall, Dfile, DhistoFile, DmeansFile, DmeansErrFiles, DslideFile, Dthroughput, DnbMsgPerSec,
+}
+
 func (d Draws) String() string {
-	return [...]string{"Draw all", "Comparison", "Draw file raw data", "Draw histograms", "Draw means",
+	return [...]string{"Draw all", "Draw file raw data", "Draw histograms", "Draw means",
 		"Draw means with errors", "Draw a sliding window", "Draw throughput", "Draw the number of messages per seconds"}[d]
+}
+
+// Describe the different draws in the help (-h)
+func helpDraw() string {
+	var s string
+	for i, d := range draws {
+		s = fmt.Sprintf("%s\n%d = %s", s, i, d)
+	}
+	return s
 }
 
 // If true, print the moments ofCqueueBufMaxKbytes_30k, CqueueBufMaxKbytes_100k, CqueueBufMaxKbytes_300k, CqueueBufMaxKbytes_3000k the distribution for each diagram
@@ -88,12 +128,43 @@ const NCOL = 30
 
 // Main entry point.
 func main() {
-	// draw := Dall                  // Define the diagrams to create (Dall = all diagrams)
-	// fileNb := -1                  // file to process as example (-1 = all files)
-	// conf := []Confs{CmsgSizeAck1} //Define the configs to process (Call = all configs)
-	// process(draw, conf, fileNb, "")
+	d := flag.Int("d", 0, "Drawing type (default 0)"+helpDraw())
+	n := flag.Int("n", -1, "File number to process as example or -1 for all")
+	c := flag.String("c", "msgSizeAck1", "Name of the config to process")
+	compar := flag.Bool("C", false, "Run comparison mode")
+	flag.Parse()
 
-	compareAll()
+	if *compar {
+		compareAll()
+		return
+	}
+	if *d < 0 || *d >= len(draws) {
+		fmt.Println("Error : bad drawing type. Should be in [ 0, ", len(draws)-1, "]")
+		return
+	}
+	if *n < -1 {
+		fmt.Println("Error : bad file number.")
+		return
+	}
+	if *c == "all" {
+		processAllConfigs(draws[*d], *n)
+		return
+	}
+	idx := findConfigIdx(*c)
+	if idx == -1 {
+		fmt.Println("No config found with name : ", *c)
+		return
+	}
+	drawConfig(Configs[idx], draws[*d], *n)
+}
+
+// Compare the configs defined by their name in the given slice one each other
+func compareConfig(names []string) error {
+	confs, err := toConfigs(names)
+	if err != nil {
+		return err
+	}
+	return compareConfigs(confs)
 }
 
 // Run all comparisons in parallel
@@ -101,67 +172,68 @@ func compareAll() {
 	ComparePNGsuffix = "per_partition" // sufix added to PNG names
 	plotfunc.N = 10
 	var wg sync.WaitGroup
-	wg.Add(1)
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_queueBufMaxMs_100k, Cp36_queueBufMaxMs_100k, Cp72_queueBufMaxMs_100k, Cp108_queueBufMaxMs_100k, Cp180_queueBufMaxMs_100k, Cp360_queueBufMaxMs_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_queuedMinMessages_100k, Cp36_queuedMinMessages_100k, Cp72_queuedMinMessages_100k, Cp108_queuedMinMessages_100k, Cp180_queuedMinMessages_100k, Cp360_queuedMinMessages_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_queueBufMaxMsg_100k, Cp36_queueBufMaxMsg_100k, Cp72_queueBufMaxMsg_100k, Cp108_queueBufMaxMsg_100k, Cp180_queueBufMaxMsg_100k, Cp360_queueBufMaxMsg_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_batchNumMsg_100k, Cp36_batchNumMsg_100k, Cp72_batchNumMsg_100k, Cp108_batchNumMsg_100k, Cp180_batchNumMsg_100k, Cp360_batchNumMsg_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_fetchMinBytes_100k, Cp36_fetchMinBytes_100k, Cp72_fetchMinBytes_100k, Cp108_fetchMinBytes_100k, Cp180_fetchMinBytes_100k, Cp360_fetchMinBytes_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_fetchWaitMaxMs_100k, Cp36_fetchWaitMaxMs_100k, Cp72_fetchWaitMaxMs_100k, Cp108_fetchWaitMaxMs_100k, Cp180_fetchWaitMaxMs_100k, Cp360_fetchWaitMaxMs_100k})
-	// 	wg.Done()
-	// }()
-	// go func() {
-	// 	compareConfigs([]Confs{Cp6_queueBufMaxKbytes_100k, Cp36_queueBufMaxKbytes_100k, Cp72_queueBufMaxKbytes_100k, Cp108_queueBufMaxKbytes_100k, Cp180_queueBufMaxKbytes_100k, Cp360_queueBufMaxKbytes_100k})
-	// 	wg.Done()
-	// }()
+	wg.Add(8)
 	go func() {
-		compareConfigs([]Confs{Cp6_msgSize, Cp36_msgSize, Cp72_msgSize, Cp108_msgSize})
+		if err := compareConfig([]string{"p6_queueBufMaxMs_100k", "p36_queueBufMaxMs_100k", "p72_queueBufMaxMs_100k", "p108_queueBufMaxMs_100k", "p180_queueBufMaxMs_100k", "p360_queueBufMaxMs_100k"}); err != nil {
+			fmt.Println(err)
+		}
 		wg.Done()
 	}()
-
+	go func() {
+		if err := compareConfig([]string{"p6_queuedMinMessages_100k", "p36_queuedMinMessages_100k", "p72_queuedMinMessages_100k", "p108_queuedMinMessages_100k", "p180_queuedMinMessages_100k", "p360_queuedMinMessages_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_queueBufMaxMsg_100k", "p36_queueBufMaxMsg_100k", "p72_queueBufMaxMsg_100k", "p108_queueBufMaxMsg_100k", "p180_queueBufMaxMsg_100k", "p360_queueBufMaxMsg_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_batchNumMsg_100k", "p36_batchNumMsg_100k", "p72_batchNumMsg_100k", "p108_batchNumMsg_100k", "p180_batchNumMsg_100k", "p360_batchNumMsg_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_fetchMinBytes_100k", "p36_fetchMinBytes_100k", "p72_fetchMinBytes_100k", "p108_fetchMinBytes_100k", "p180_fetchMinBytes_100k", "p360_fetchMinBytes_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_fetchWaitMaxMs_100k", "p36_fetchWaitMaxMs_100k", "p72_fetchWaitMaxMs_100k", "p108_fetchWaitMaxMs_100k", "p180_fetchWaitMaxMs_100k", "p360_fetchWaitMaxMs_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_queueBufMaxKbytes_100k", "p36_queueBufMaxKbytes_100k", "p72_queueBufMaxKbytes_100k", "p108_queueBufMaxKbytes_100k", "p180_queueBufMaxKbytes_100k", "p360_queueBufMaxKbytes_100k"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := compareConfig([]string{"p6_msgSize", "p36_msgSize", "p72_msgSize", "p108_msgSize", "p180_msgSize", "p360_msgSize"}); err != nil {
+			fmt.Println(err)
+		}
+		wg.Done()
+	}()
 	wg.Wait()
 }
 
-// Process the config according to the parameters
-func process(draw Draws, conf []Confs, fileNb int, comparePNGsuffix string) {
-	ComparePNGsuffix = comparePNGsuffix
-	plotfunc.N = len(conf)
-	if plotfunc.N > 1 {
-		compareConfigs(conf)
-	} else {
-		switch conf[0] {
-		case Call:
-			// Process all configs in parallel
-			var wg sync.WaitGroup
-			for _, cfg := range Configs {
-				wg.Add(1)
-				go func(c Config) {
-					drawConfig(c, draw, fileNb)
-					wg.Done()
-				}(cfg)
-			}
-			wg.Wait()
-		default:
-			// Process the only config defined (only one here)
-			for _, c := range conf {
-				drawConfig(Configs[c-1], draw, fileNb)
-			}
-		}
+// Process all configs according to the parameters in parallel
+func processAllConfigs(draw Draws, fileNb int) {
+	plotfunc.N = 1
+	var wg sync.WaitGroup
+	for _, cfg := range Configs {
+		wg.Add(1)
+		go func(c Config) {
+			drawConfig(c, draw, fileNb)
+			wg.Done()
+		}(cfg)
 	}
+	wg.Wait()
 }

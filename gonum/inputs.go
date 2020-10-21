@@ -2,6 +2,7 @@ package main
 
 var Configs = []Config{
 	{
+		name:         "msgSizeAck1",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/msgSizeAck1",
 		prefix:       "ms_size_ack1_",
@@ -14,6 +15,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "fetchWaitMaxMs_30k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchWaitMaxMs_30k",
 		prefix:       "fetch_wait_max_ms_30k_n10000_",
@@ -24,6 +26,7 @@ var Configs = []Config{
 		mb:     0.03,
 	},
 	{
+		name:         "fetchWaitMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -34,6 +37,7 @@ var Configs = []Config{
 		mb:     0.1,
 	},
 	{
+		name:         "fetchWaitMaxMs_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchWaitMaxMs_300k",
 		prefix:       "fetch_wait_max_ms_300k_n10000_",
@@ -44,6 +48,7 @@ var Configs = []Config{
 		mb:     0.3,
 	},
 	{
+		name:         "fetchWaitMaxMs_1000k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchWaitMaxMs_1000k",
 		prefix:       "fetch_wait_max_ms_1000k_n10000_",
@@ -54,6 +59,7 @@ var Configs = []Config{
 		mb:     1.,
 	},
 	{
+		name:         "queuedMinMessages_30k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queuedMinMessages_30k",
 		prefix:       "queued_min_messages_30k_n10000_",
@@ -63,6 +69,7 @@ var Configs = []Config{
 		mb:           0.03,
 	},
 	{
+		name:         "queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queuedMinMessages_100k",
 		prefix:       "queued.min.messages_100k_n2000_",
@@ -73,6 +80,7 @@ var Configs = []Config{
 		mb:     0.1,
 	},
 	{
+		name:         "queuedMinMessages_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queuedMinMessages_300k",
 		prefix:       "queued_min_messages_300k_n10000_",
@@ -82,6 +90,7 @@ var Configs = []Config{
 		mb:           0.3,
 	},
 	{
+		name:         "queuedMinMessages_3000k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queuedMinMessages_3000k",
 		prefix:       "queued_min_messages_3000k_n10000_",
@@ -91,6 +100,7 @@ var Configs = []Config{
 		mb:           3.0,
 	},
 	{
+		name:         "fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -102,6 +112,7 @@ var Configs = []Config{
 		title:  "\nsize=100k n=10000 linger.ms=100",
 	},
 	{
+		name:         "fetchMinBytes_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchMinBytes_300k",
 		prefix:       "fetch_min_bytes_300k_n10000_",
@@ -113,6 +124,7 @@ var Configs = []Config{
 		title:  "\nsize=300k n=10000 linger.ms=100",
 	},
 	{
+		name:         "fetchMinBytes_3000k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/fetchMinBytes_3000k",
 		prefix:       "fetch_min_bytes_3000k_n10000_",
@@ -124,6 +136,7 @@ var Configs = []Config{
 		title:  "\nsize=3m n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxKbytes_big",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxKbytes_big",
 		prefix:       "queue.buffering.max.msg_100k_n2000_",
@@ -133,6 +146,7 @@ var Configs = []Config{
 		mb:           0.1,
 	},
 	{
+		name:         "queueBufMaxMsg_3000k_n10000",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_3000k_n10000",
 		prefix:       "queue.buffering.max.messages_3000k_n10000_",
@@ -143,6 +157,7 @@ var Configs = []Config{
 		title:        "\nsize=3m n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxMsg_ms200_900k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms200_900k",
 		prefix:       "queue.buffering.max.msg_900k_n2000_",
@@ -153,6 +168,7 @@ var Configs = []Config{
 		ndata:  2000,
 	},
 	{
+		name:         "queueBufMaxMsg_ms200_700k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms200_700k",
 		prefix:       "queue.buffering.max.msg_700k_n2000_",
@@ -164,6 +180,7 @@ var Configs = []Config{
 		ndata:  2000,
 	},
 	{
+		name:         "queueBufMaxMsg_ms200_500k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms200_500k",
 		prefix:       "queue.buffering.max.msg_500k_n2000_",
@@ -175,6 +192,7 @@ var Configs = []Config{
 		ndata:  2000,
 	},
 	{
+		name:         "queueBufMaxMsg_ms200_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms200_300k",
 		prefix:       "queue.buffering.max.messages_300k_n10000_",
@@ -185,6 +203,7 @@ var Configs = []Config{
 		title:        "\nsize=300kb n=10000 linger.ms=200",
 	},
 	{
+		name:         "queueBufMaxMsg_ms200_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms200_100k",
 		prefix:       "queue.buffering.max.msg_100k_n2000_",
@@ -195,6 +214,7 @@ var Configs = []Config{
 		mb:     0.1,
 	},
 	{
+		name:         "queueBufMaxMsg_ms100_30k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms100_30k",
 		prefix:       "queue.buffering.max.messages_30k_n10000_",
@@ -205,6 +225,7 @@ var Configs = []Config{
 		title:        "\nsize=30kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxMsg_ms100_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms100_100k",
 		prefix:       "queue.buffering.max.msg_100k_n2000_",
@@ -216,6 +237,7 @@ var Configs = []Config{
 		title:  "\nsize=100kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxMsg_ms100_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms100_300k",
 		prefix:       "queue.buffering.max.messages_300k_n10000_",
@@ -226,6 +248,7 @@ var Configs = []Config{
 		title:        "\nsize=300kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxMsg_ms0_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms0_300k",
 		prefix:       "queue.buffering.max.messages_300k_n10000_",
@@ -233,6 +256,7 @@ var Configs = []Config{
 		title:        "\nsize=300kb n=10000 linger.ms=0",
 	},
 	{
+		name:         "queueBufMaxMsg_ms0_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMsg_ms0_100k",
 		prefix:       "queue.buffering.max.msg_100k_n2000_",
@@ -242,6 +266,7 @@ var Configs = []Config{
 		mb:           0.1,
 	},
 	{
+		name:         "batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/batchNumMsg_100k",
 		prefix:       "batch.num.msg_100k_n10000_",
@@ -253,6 +278,7 @@ var Configs = []Config{
 		title:  "\nsize=100kb n=10000 linger.ms=200",
 	},
 	{
+		name:         "batchNumMsg_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/batchNumMsg_300k",
 		prefix:       "batch.num.msg_300k_n10000_",
@@ -263,6 +289,7 @@ var Configs = []Config{
 		title:        "\nsize=300kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "batchNumMsg_5Mb",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/batchNumMsg_5Mb",
 		prefix:       "batch.num.messages_5000k_n2000_",
@@ -274,6 +301,7 @@ var Configs = []Config{
 		title:  "\nsize=5m n=2000 linger.ms=100",
 	},
 	{
+		name:         "nbMsg",
 		nbPtsDiscard: 0,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/nbMsg",
 		prefix:       "nbMsg_100k_n",
@@ -285,6 +313,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "queueBufMaxKbytes_30k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxKbytes_30k",
 		prefix:       "queue.buffering.max.kbytes_30k_n10000_",
@@ -296,6 +325,7 @@ var Configs = []Config{
 		title:  "\nsize=30kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxKbytes_100k",
 		prefix:       "queue.buffering.max.kb_100k_n2000_",
@@ -307,6 +337,7 @@ var Configs = []Config{
 		title:  "\nsize=100kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxKbytes_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxKbytes_300k",
 		prefix:       "queue.buffering.max.kbytes_300k_n10000_",
@@ -318,6 +349,7 @@ var Configs = []Config{
 		title:  "\nsize=300kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxKbytes_3000k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxKbytes_3000k",
 		prefix:       "queue.buffering.max.kbytes_3000k_n10000_",
@@ -329,6 +361,7 @@ var Configs = []Config{
 		title:  "\nsize=3000kb n=10000 linger.ms=100",
 	},
 	{
+		name:         "queueBufMaxMs_30k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMs_30k",
 		prefix:       "queue.buffering.max.ms_30k_n10000_",
@@ -338,6 +371,7 @@ var Configs = []Config{
 		ndata:        10000,
 	},
 	{
+		name:         "queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMs_100k",
 		prefix:       "queue.buffering.max.ms_100k_n10000_",
@@ -347,6 +381,7 @@ var Configs = []Config{
 		mb:           0.1,
 	},
 	{
+		name:         "queueBufMaxMs_300k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMs_300k",
 		prefix:       "queue.buffering.max.ms_300k_n10000_",
@@ -356,6 +391,7 @@ var Configs = []Config{
 		ndata:        10000,
 	},
 	{
+		name:         "queueBufMaxMs_1Mb",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMs_1Mb",
 		prefix:       "queue.buffering.max.ms_1000k_n10000_",
@@ -365,6 +401,7 @@ var Configs = []Config{
 		ndata:        10000,
 	},
 	{
+		name:         "queueBufMaxMs_5Mb",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/queueBufMaxMs_5Mb",
 		prefix:       "queue.buffering.max.ms_5000k_n2000_",
@@ -374,6 +411,7 @@ var Configs = []Config{
 		ndata:        2000,
 	},
 	{
+		name:         "sizeMsgGzip",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/sizeMsgGzip",
 		prefix:       "latency_gzip_",
@@ -386,6 +424,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "sizeMsgLz4",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/sizeMsgLz4",
 		prefix:       "latency_lz4_",
@@ -398,6 +437,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "sizeMsgSnappy",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/sizeMsgSnappy",
 		prefix:       "latency_snappy_",
@@ -410,6 +450,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "sizeMsg",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/sizeMsg",
 		prefix:       "latency_none_",
@@ -423,6 +464,7 @@ var Configs = []Config{
 		mb:         0.1,
 	},
 	{
+		name:         "p6_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -434,6 +476,7 @@ var Configs = []Config{
 		title:  "\np=6",
 	},
 	{
+		name:         "p36_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -445,6 +488,7 @@ var Configs = []Config{
 		title:  "\np=36",
 	},
 	{
+		name:         "p72_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -456,6 +500,7 @@ var Configs = []Config{
 		title:  "\np=72",
 	},
 	{
+		name:         "p108_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -467,6 +512,7 @@ var Configs = []Config{
 		title:  "\np=108",
 	},
 	{
+		name:         "p180_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -478,6 +524,7 @@ var Configs = []Config{
 		title:  "\np=180",
 	},
 	{
+		name:         "p360_queueBufMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/queueBufMaxMs_100k",
 		prefix:       "queue_buffering_max_ms_100k_n10000_",
@@ -489,6 +536,7 @@ var Configs = []Config{
 		title:  "\np=360",
 	},
 	{
+		name:         "p6_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -499,6 +547,7 @@ var Configs = []Config{
 		title:        "\np=6",
 	},
 	{
+		name:         "p36_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -509,6 +558,7 @@ var Configs = []Config{
 		title:        "\np=36",
 	},
 	{
+		name:         "p72_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -519,6 +569,7 @@ var Configs = []Config{
 		title:        "\np=72",
 	},
 	{
+		name:         "p108_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -529,6 +580,7 @@ var Configs = []Config{
 		title:        "\np=108",
 	},
 	{
+		name:         "p180_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -539,6 +591,7 @@ var Configs = []Config{
 		title:        "\np=180",
 	},
 	{
+		name:         "p360_queueBufMaxKbytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/queueBufMaxKbytes_100k",
 		prefix:       "queue_buffering_max_kbytes_100k_n10000_",
@@ -549,6 +602,7 @@ var Configs = []Config{
 		title:        "\np=360",
 	},
 	{
+		name:         "p6_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -559,6 +613,7 @@ var Configs = []Config{
 		title:        "\np=6",
 	},
 	{
+		name:         "p36_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -569,6 +624,7 @@ var Configs = []Config{
 		title:        "\np=36",
 	},
 	{
+		name:         "p72_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -579,6 +635,7 @@ var Configs = []Config{
 		title:        "\np=72",
 	},
 	{
+		name:         "p108_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 1100,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -589,6 +646,7 @@ var Configs = []Config{
 		title:        "\np=108",
 	},
 	{
+		name:         "p180_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 1100,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -599,6 +657,7 @@ var Configs = []Config{
 		title:        "\np=180",
 	},
 	{
+		name:         "p360_fetchWaitMaxMs_100k",
 		nbPtsDiscard: 1100,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/fetchWaitMaxMs_100k",
 		prefix:       "fetch_wait_max_ms_100k_n10000_",
@@ -609,6 +668,7 @@ var Configs = []Config{
 		title:        "\np=360",
 	},
 	{
+		name:         "p6_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -619,6 +679,7 @@ var Configs = []Config{
 		title:        "\np=6",
 	},
 	{
+		name:         "p36_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -629,6 +690,7 @@ var Configs = []Config{
 		title:        "\np=36",
 	},
 	{
+		name:         "p72_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -639,6 +701,7 @@ var Configs = []Config{
 		title:        "\np=72",
 	},
 	{
+		name:         "p108_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -649,6 +712,7 @@ var Configs = []Config{
 		title:        "\np=108",
 	},
 	{
+		name:         "p180_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -659,6 +723,7 @@ var Configs = []Config{
 		title:        "\np=180",
 	},
 	{
+		name:         "p360_fetchMinBytes_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/fetchMinBytes_100k",
 		prefix:       "fetch_min_bytes_100k_n10000_",
@@ -669,6 +734,7 @@ var Configs = []Config{
 		title:        "\np=360",
 	},
 	{
+		name:         "p6_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -679,6 +745,7 @@ var Configs = []Config{
 		title:        "\np6",
 	},
 	{
+		name:         "p36_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -689,6 +756,7 @@ var Configs = []Config{
 		title:        "\np36",
 	},
 	{
+		name:         "p72_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -699,6 +767,7 @@ var Configs = []Config{
 		title:        "\np72",
 	},
 	{
+		name:         "p108_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -709,6 +778,7 @@ var Configs = []Config{
 		title:        "\np108",
 	},
 	{
+		name:         "p180_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -719,6 +789,7 @@ var Configs = []Config{
 		title:        "\np180",
 	},
 	{
+		name:         "p360_batchNumMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/batchNumMsg_100k",
 		prefix:       "batch_num_msg_100k_n10000_",
@@ -729,6 +800,7 @@ var Configs = []Config{
 		title:        "\np360",
 	},
 	{
+		name:         "p6_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -739,6 +811,7 @@ var Configs = []Config{
 		title:        "\np6",
 	},
 	{
+		name:         "p36_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -749,6 +822,7 @@ var Configs = []Config{
 		title:        "\np36",
 	},
 	{
+		name:         "p72_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -759,6 +833,7 @@ var Configs = []Config{
 		title:        "\np72",
 	},
 	{
+		name:         "p108_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -769,6 +844,7 @@ var Configs = []Config{
 		title:        "\np108",
 	},
 	{
+		name:         "p180_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -779,6 +855,7 @@ var Configs = []Config{
 		title:        "\np180",
 	},
 	{
+		name:         "p360_queueBufMaxMsg_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/queueBufMaxMsg_100k",
 		prefix:       "queue_buffering_max_msg_100k_n10000_",
@@ -789,6 +866,7 @@ var Configs = []Config{
 		title:        "\np360",
 	},
 	{
+		name:         "p6_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -799,6 +877,7 @@ var Configs = []Config{
 		title:        "\np6",
 	},
 	{
+		name:         "p36_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -809,6 +888,7 @@ var Configs = []Config{
 		title:        "\np36",
 	},
 	{
+		name:         "p72_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -819,6 +899,7 @@ var Configs = []Config{
 		title:        "\np72",
 	},
 	{
+		name:         "p108_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -829,6 +910,7 @@ var Configs = []Config{
 		title:        "\np108",
 	},
 	{
+		name:         "p180_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -839,6 +921,7 @@ var Configs = []Config{
 		title:        "\np180",
 	},
 	{
+		name:         "p360_queuedMinMessages_100k",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/queuedMinMessages_100k",
 		prefix:       "queued_min_msg_100k_n10000_",
@@ -849,141 +932,81 @@ var Configs = []Config{
 		title:        "\np360",
 	},
 	{
+		name:         "p6_msgSize",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p6/msgSize",
 		prefix:       "msg_size_",
-		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800"},
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
 		postfix:      "k_n10000",
 		xlabel:       "size (kB)",
 		ndata:        10000,
 		mb:           0.1,
+		abscisIsSz:   true,
 		title:        "\np6",
 	},
 	{
+		name:         "p36_msgSize",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p36/msgSize",
 		prefix:       "msg_size_",
-		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100"},
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
 		postfix:      "k_n10000",
 		xlabel:       "size (kB)",
 		ndata:        10000,
 		mb:           0.1,
+		abscisIsSz:   true,
 		title:        "\np36",
 	},
 	{
+		name:         "p72_msgSize",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p72/msgSize",
 		prefix:       "msg_size_",
-		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800"},
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
 		postfix:      "k_n10000",
 		xlabel:       "size (kB)",
 		ndata:        10000,
 		mb:           0.1,
+		abscisIsSz:   true,
 		title:        "\np72",
 	},
 	{
+		name:         "p108_msgSize",
 		nbPtsDiscard: 500,
 		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p108/msgSize",
 		prefix:       "msg_size_",
-		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800"},
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
 		postfix:      "k_n10000",
 		xlabel:       "size (kB)",
 		ndata:        10000,
 		mb:           0.1,
+		abscisIsSz:   true,
 		title:        "\np108",
 	},
+	{
+		name:         "p180_msgSize",
+		nbPtsDiscard: 500,
+		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p180/msgSize",
+		prefix:       "msg_size_",
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
+		postfix:      "k_n10000",
+		xlabel:       "size (kB)",
+		ndata:        10000,
+		mb:           0.1,
+		abscisIsSz:   true,
+		title:        "\np180",
+	},
+	{
+		name:         "p360_msgSize",
+		nbPtsDiscard: 500,
+		root:         "/home/jimbert/Projects/LibRdKafka/messagebrokerclient/notes/benchmarks/p360/msgSize",
+		prefix:       "msg_size_",
+		sufix:        []string{"2", "4", "6", "8", "10", "20", "40", "60", "80", "100", "200", "400", "600", "800", "1000", "3000", "5000"},
+		postfix:      "k_n10000",
+		xlabel:       "size (kB)",
+		ndata:        10000,
+		mb:           0.1,
+		abscisIsSz:   true,
+		title:        "\np360",
+	},
 }
-
-// Add the configs below, in the same order they are defined above (order matters)
-type Confs int
-
-const (
-	Call Confs = iota
-	CmsgSizeAck1
-	CfetchWaitMaxMs_30k
-	CfetchWaitMaxMs_100k
-	CfetchWaitMaxMs_300k
-	CfetchWaitMaxMs_1000k
-	CqueuedMinMessages_30k
-	CqueuedMinMessages_100k
-	CqueuedMinMessages_300k
-	CqueuedMinMessages_3000k
-	CfetchMinBytes_100k
-	CfetchMinBytes_300k
-	CfetchMinBytes_3000k
-	CqueueBufMaxKbytes_big
-	CqueueBufMaxMsg_3000k_n10000
-	CqueueBufMaxMsg_ms200_900k
-	CqueueBufMaxMsg_ms200_700k
-	CqueueBufMaxMsg_ms200_500k
-	CqueueBufMaxMsg_ms200_300k
-	CqueueBufMaxMsg_ms200_100k
-	CqueueBufMaxMsg_ms100_30k
-	CqueueBufMaxMsg_ms100_100k
-	CqueueBufMaxMsg_ms100_300k
-	CqueueBufMaxMsg_ms0_300k
-	CqueueBufMaxMsg_ms0_100k
-	CbatchNumMsg_100k
-	CbatchNumMsg_300k
-	CbatchNumMsg_5Mb
-	CnbMsg
-	CqueueBufMaxKbytes_30k
-	CqueueBufMaxKbytes_100k
-	CqueueBufMaxKbytes_300k
-	CqueueBufMaxKbytes_3000k
-	CqueueBufMaxMs_30k
-	CqueueBufMaxMs_100k
-	CqueueBufMaxMs_300k
-	CqueueBufMaxMs_1Mb
-	CqueueBufMaxMs_5Mb
-	CsizeMsgGzip
-	CsizeMsgLz4
-	CsizeMsgSnappy
-	CsizeMsg
-	Cp6_queueBufMaxMs_100k
-	Cp36_queueBufMaxMs_100k
-	Cp72_queueBufMaxMs_100k
-	Cp108_queueBufMaxMs_100k
-	Cp180_queueBufMaxMs_100k
-	Cp360_queueBufMaxMs_100k
-	Cp6_queueBufMaxKbytes_100k
-	Cp36_queueBufMaxKbytes_100k
-	Cp72_queueBufMaxKbytes_100k
-	Cp108_queueBufMaxKbytes_100k
-	Cp180_queueBufMaxKbytes_100k
-	Cp360_queueBufMaxKbytes_100k
-	Cp6_fetchWaitMaxMs_100k
-	Cp36_fetchWaitMaxMs_100k
-	Cp72_fetchWaitMaxMs_100k
-	Cp108_fetchWaitMaxMs_100k
-	Cp180_fetchWaitMaxMs_100k
-	Cp360_fetchWaitMaxMs_100k
-	Cp6_fetchMinBytes_100k
-	Cp36_fetchMinBytes_100k
-	Cp72_fetchMinBytes_100k
-	Cp108_fetchMinBytes_100k
-	Cp180_fetchMinBytes_100k
-	Cp360_fetchMinBytes_100k
-	Cp6_batchNumMsg_100k
-	Cp36_batchNumMsg_100k
-	Cp72_batchNumMsg_100k
-	Cp108_batchNumMsg_100k
-	Cp180_batchNumMsg_100k
-	Cp360_batchNumMsg_100k
-	Cp6_queueBufMaxMsg_100k
-	Cp36_queueBufMaxMsg_100k
-	Cp72_queueBufMaxMsg_100k
-	Cp108_queueBufMaxMsg_100k
-	Cp180_queueBufMaxMsg_100k
-	Cp360_queueBufMaxMsg_100k
-	Cp6_queuedMinMessages_100k
-	Cp36_queuedMinMessages_100k
-	Cp72_queuedMinMessages_100k
-	Cp108_queuedMinMessages_100k
-	Cp180_queuedMinMessages_100k
-	Cp360_queuedMinMessages_100k
-	Cp6_msgSize
-	Cp36_msgSize
-	Cp72_msgSize
-	Cp108_msgSize
-)

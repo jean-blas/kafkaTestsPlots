@@ -27,26 +27,26 @@ func print(x, y []float64, label string) {
 	}
 }
 
-// Process the comparison of the specified configs "c"
-func compareConfigs(confs []Confs) {
+// Process the comparison of the specified configs
+func compareConfigs(confs []Config) error {
 	cfgs := make([]Config, len(confs))
 	for i, c := range confs {
-		cc := Configs[c-1]
-		cc.prepare()
-		cfgs[i] = cc
+		c.prepare()
+		cfgs[i] = c
 	}
 	if err := compareThroughputs(cfgs); err != nil {
-		panic(err)
+		return err
 	}
 	if err := compareNbMsgPerSec(cfgs); err != nil {
-		panic(err)
+		return err
 	}
 	if err := compareMeansErr(cfgs); err != nil {
-		panic(err)
+		return err
 	}
 	if err := compareMeansLine(cfgs); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 // used to pass the func as first citizen
