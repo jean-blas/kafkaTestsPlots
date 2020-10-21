@@ -14,7 +14,17 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-var ComparePNGsuffix string // A suffixe to be added to the PNG when comparing configs
+// If true, print the moments while drawing (option -p)
+var PRINT = false
+
+// Window interval when using drawSlide (option -l)
+var NVAL = 5
+
+// Number of columns of the histograms (option -o)
+var NCOL = 30
+
+// A suffixe to be added to the PNG when comparing configs
+var ComparePNGsuffix string
 
 // Print the values of x and y to screen
 func print(x, y []float64, label string) {
@@ -28,7 +38,7 @@ func print(x, y []float64, label string) {
 }
 
 // Process the comparison of the specified configs
-func compareConfigs(confs []Config) error {
+func doCompare(confs []Config) error {
 	cfgs := make([]Config, len(confs))
 	for i, c := range confs {
 		c.prepare()

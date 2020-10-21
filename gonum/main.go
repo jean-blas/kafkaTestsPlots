@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"path/filepath"
 	"plots/plotfunc"
 	"strconv"
@@ -117,54 +118,69 @@ func helpDraw() string {
 	return s
 }
 
-// If true, print the moments ofCqueueBufMaxKbytes_30k, CqueueBufMaxKbytes_100k, CqueueBufMaxKbytes_300k, CqueueBufMaxKbytes_3000k the distribution for each diagram
-const PRINT = false
-
-// Window interval when using drawSlide
-const NVAL = 5
-
-// Number of columns of the histograms
-const NCOL = 30
-
 // Main entry point.
+// go run main.go drawings.go inputs.go -C
 func main() {
 	d := flag.Int("d", 0, "Drawing type (default 0)"+helpDraw())
 	n := flag.Int("n", -1, "File number to process as example or -1 for all")
+	l := flag.Int("l", NVAL, "Window interval when using the drawSlide")
+	o := flag.Int("o", NCOL, "Number of columns of the histograms")
+	p := flag.Bool("p", PRINT, "Print the moments of the distribution while drawing")
 	c := flag.String("c", "msgSizeAck1", "Name of the config to process")
-	compar := flag.Bool("C", false, "Run comparison mode")
+	compar := flag.Bool("C", false, "Run in comparison mode")
 	flag.Parse()
 
-	if *compar {
-		compareAll()
-		return
+	checkOptions(*d, *n, *l, *o, *c, *p)
+
+	switch {
+	case *compar:
+		{
+			compareAll()
+		}
+	case *c == "all":
+		{
+			processAllConfigs(draws[*d], *n)
+		}
+	default:
+		{
+			idx := findConfigIdx(*c)
+			if idx == -1 {
+				fmt.Println("No config found with name : ", *c)
+				return
+			}
+			drawConfig(Configs[idx], draws[*d], *n)
+		}
 	}
-	if *d < 0 || *d >= len(draws) {
+}
+
+// Check the program arguments (options) and exit in case of error
+func checkOptions(d, n, l, o int, c string, p bool) {
+	if d < 0 || d >= len(draws) {
 		fmt.Println("Error : bad drawing type. Should be in [ 0, ", len(draws)-1, "]")
-		return
+		os.Exit(1)
 	}
-	if *n < -1 {
-		fmt.Println("Error : bad file number.")
-		return
+	if n < -1 {
+		fmt.Println("Error : the file number should be positive. Found", n)
+		os.Exit(1)
 	}
-	if *c == "all" {
-		processAllConfigs(draws[*d], *n)
-		return
+	if l < 2 {
+		fmt.Println("Error : window interval should be greater that 1. Found", l)
+		os.Exit(1)
 	}
-	idx := findConfigIdx(*c)
-	if idx == -1 {
-		fmt.Println("No config found with name : ", *c)
-		return
+	if o < 2 {
+		fmt.Println("Error : the histogram number of columns should be greater that 1. Found", l)
+		os.Exit(1)
 	}
-	drawConfig(Configs[idx], draws[*d], *n)
+	PRINT, NVAL, NCOL = p, l, o
 }
 
 // Compare the configs defined by their name in the given slice one each other
-func compareConfig(names []string) error {
+func compareConfigs(names []string) error {
 	confs, err := toConfigs(names)
 	if err != nil {
 		return err
 	}
-	return compareConfigs(confs)
+	return doCompare(confs)
 }
 
 // Run all comparisons in parallel
@@ -174,49 +190,49 @@ func compareAll() {
 	var wg sync.WaitGroup
 	wg.Add(8)
 	go func() {
-		if err := compareConfig([]string{"p6_queueBufMaxMs_100k", "p36_queueBufMaxMs_100k", "p72_queueBufMaxMs_100k", "p108_queueBufMaxMs_100k", "p180_queueBufMaxMs_100k", "p360_queueBufMaxMs_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_queueBufMaxMs_100k", "p36_queueBufMaxMs_100k", "p72_queueBufMaxMs_100k", "p108_queueBufMaxMs_100k", "p180_queueBufMaxMs_100k", "p360_queueBufMaxMs_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_queuedMinMessages_100k", "p36_queuedMinMessages_100k", "p72_queuedMinMessages_100k", "p108_queuedMinMessages_100k", "p180_queuedMinMessages_100k", "p360_queuedMinMessages_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_queuedMinMessages_100k", "p36_queuedMinMessages_100k", "p72_queuedMinMessages_100k", "p108_queuedMinMessages_100k", "p180_queuedMinMessages_100k", "p360_queuedMinMessages_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_queueBufMaxMsg_100k", "p36_queueBufMaxMsg_100k", "p72_queueBufMaxMsg_100k", "p108_queueBufMaxMsg_100k", "p180_queueBufMaxMsg_100k", "p360_queueBufMaxMsg_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_queueBufMaxMsg_100k", "p36_queueBufMaxMsg_100k", "p72_queueBufMaxMsg_100k", "p108_queueBufMaxMsg_100k", "p180_queueBufMaxMsg_100k", "p360_queueBufMaxMsg_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_batchNumMsg_100k", "p36_batchNumMsg_100k", "p72_batchNumMsg_100k", "p108_batchNumMsg_100k", "p180_batchNumMsg_100k", "p360_batchNumMsg_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_batchNumMsg_100k", "p36_batchNumMsg_100k", "p72_batchNumMsg_100k", "p108_batchNumMsg_100k", "p180_batchNumMsg_100k", "p360_batchNumMsg_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_fetchMinBytes_100k", "p36_fetchMinBytes_100k", "p72_fetchMinBytes_100k", "p108_fetchMinBytes_100k", "p180_fetchMinBytes_100k", "p360_fetchMinBytes_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_fetchMinBytes_100k", "p36_fetchMinBytes_100k", "p72_fetchMinBytes_100k", "p108_fetchMinBytes_100k", "p180_fetchMinBytes_100k", "p360_fetchMinBytes_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_fetchWaitMaxMs_100k", "p36_fetchWaitMaxMs_100k", "p72_fetchWaitMaxMs_100k", "p108_fetchWaitMaxMs_100k", "p180_fetchWaitMaxMs_100k", "p360_fetchWaitMaxMs_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_fetchWaitMaxMs_100k", "p36_fetchWaitMaxMs_100k", "p72_fetchWaitMaxMs_100k", "p108_fetchWaitMaxMs_100k", "p180_fetchWaitMaxMs_100k", "p360_fetchWaitMaxMs_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_queueBufMaxKbytes_100k", "p36_queueBufMaxKbytes_100k", "p72_queueBufMaxKbytes_100k", "p108_queueBufMaxKbytes_100k", "p180_queueBufMaxKbytes_100k", "p360_queueBufMaxKbytes_100k"}); err != nil {
+		if err := compareConfigs([]string{"p6_queueBufMaxKbytes_100k", "p36_queueBufMaxKbytes_100k", "p72_queueBufMaxKbytes_100k", "p108_queueBufMaxKbytes_100k", "p180_queueBufMaxKbytes_100k", "p360_queueBufMaxKbytes_100k"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
 	}()
 	go func() {
-		if err := compareConfig([]string{"p6_msgSize", "p36_msgSize", "p72_msgSize", "p108_msgSize", "p180_msgSize", "p360_msgSize"}); err != nil {
+		if err := compareConfigs([]string{"p6_msgSize", "p36_msgSize", "p72_msgSize", "p108_msgSize", "p180_msgSize", "p360_msgSize"}); err != nil {
 			fmt.Println(err)
 		}
 		wg.Done()
