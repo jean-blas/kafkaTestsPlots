@@ -1,6 +1,32 @@
 // Some utility functions for slices
 package sliceutil
 
+import "strconv"
+
+// Create a slice of length "size" of float64 filled with "value"
+func FillF64(value float64, size int) []float64 {
+	f64 := make([]float64, size)
+	for i := range f64 {
+		f64[i] = value
+	}
+	return f64
+}
+
+// I64ToF64 convert a slice of string into a slice of float64
+func StrToF64(data []string) ([]float64, error) {
+	f64 := make([]float64, len(data))
+	var s string
+	var i int
+	for i, s = range data {
+		f, err := strconv.ParseFloat(s, 64)
+		if err != nil {
+			return nil, err
+		}
+		f64[i] = f
+	}
+	return f64, nil
+}
+
 // I64ToF64 convert a slice of int64 into a slice of float64
 func I64ToF64(data []int64) []float64 {
 	f64 := make([]float64, len(data))

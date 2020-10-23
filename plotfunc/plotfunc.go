@@ -202,6 +202,28 @@ func AddWithPointsXY(x, y []float64, legend string, n int, p *plot.Plot) error {
 	return nil
 }
 
+// AddChart Draw the data in a barchart
+func AddBarChart(x []string, y []float64, xlabel []string, p *plot.Plot) error {
+	width := 10.
+	w := vg.Points(width) // width of a column
+	offset := vg.Length(-width * float64(len(y)/2))
+	for i, yy := range y {
+		group := plotter.Values{yy}
+		bar, err := plotter.NewBarChart(group, w)
+		if err != nil {
+			return err
+		}
+		bar.Color = getColor(i)
+		bar.LineStyle.Width = vg.Length(0)
+		bar.Offset = offset
+		p.Add(bar)
+		p.Legend.Add(x[i], bar)
+		offset += w
+	}
+	p.NominalX(xlabel...)
+	return nil
+}
+
 // AddWithLineXY Draw the data with line
 func AddWithLineXY(x, y []float64, legend string, n int, p *plot.Plot) error {
 	line, err := plotter.NewLine(CreatePointsXY(x, y))

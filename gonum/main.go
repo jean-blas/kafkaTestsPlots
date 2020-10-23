@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"plots/plotfunc"
-	"strconv"
 	"sync"
 )
 
@@ -20,14 +19,12 @@ type Config struct {
 	postfix      string   // [optional] constant postfix in the name of all data files (mostly empty)
 	sufix        []string // variable part in the name of the data files
 	xlabel       string   // xlabel of the graphics
-	abscisIsNb   bool     // [optional] true if the nb of messages is represented by the absissa, needed to compute the throughput (default false)
 	abscisIsSz   bool     // [optional] true if the size of the messages is represented by the absissa, needed to compute the throughput (default false)
 	title        string   // [optional] Add a title line (default is empty)
-	mb           float64  // [optional] default size of the messages in Mb (default = 0.1)
-	ndata        int      // [optional] number of data values in each file (default = 2000)
+	kb           float64  // [optional] default size of the messages in Mb (default = 0.1)
 
-	files  []string  // real file names (root + prefix + sufix + postfix), computed automatically
-	abscis []float64 // corresponding abscissa of the data files, in the correct unit, computed automatically
+	files  []string // real file names (root + prefix + sufix + postfix), computed automatically
+	abscis []string // corresponding abscissa of the data files, in the correct unit. If empty, it is deduced from the sufix
 }
 
 // Create a string legend from the config fields
@@ -44,22 +41,13 @@ func (c *Config) prepare() {
 		sfx[i] = filepath.Join(c.root, c.prefix+c.sufix[i]+c.postfix)
 	}
 	c.files = sfx
-	// Compute the abscissa
-	abs := make([]float64, len(c.sufix))
-	for i := range c.sufix {
-		vi, err := strconv.Atoi(c.sufix[i])
-		if err != nil {
-			panic(err)
-		}
-		abs[i] = float64(vi)
+	// Compute the abscissa if the c.abscis is empty
+	if len(c.abscis) == 0 {
+		c.abscis = c.sufix
 	}
-	c.abscis = abs
 	// default size of messages if not set
-	if c.mb == 0 {
-		c.mb = 0.1
-	}
-	if c.ndata == 0 {
-		c.ndata = 2000
+	if c.kb == 0 {
+		c.kb = 100
 	}
 }
 

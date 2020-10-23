@@ -27,7 +27,7 @@ var NCOL = 30
 var ComparePNGsuffix string
 
 // Print the values of x and y to screen
-func print(x, y []float64, label string) {
+func print(x []string, y []float64, label string) {
 	if !PRINT {
 		return
 	}
@@ -114,8 +114,7 @@ func drawConfig(c Config, d Draws, n int) {
 }
 
 // Compute the number of messages per seconds for each file
-func computeNbMsgPerSecFiles(files []string, sizes []float64, nbPtsDiscard, ndata int, abscisIsNb bool) ([]float64, error) {
-	NB_MSG := float64(ndata - nbPtsDiscard) // default number of messages sent
+func computeNbMsgPerSecFiles(files []string, nbPtsDiscard int) ([]float64, error) {
 	trput := make([]float64, len(files))
 	for i, f := range files {
 		ts1, ts2, err := parser.ParseData(f)
@@ -123,9 +122,7 @@ func computeNbMsgPerSecFiles(files []string, sizes []float64, nbPtsDiscard, ndat
 			return nil, err
 		}
 		seconds := float64(ts2[len(ts2)-1]-ts1[nbPtsDiscard]) / 1.e9
-		if abscisIsNb {
-			NB_MSG = sizes[i]
-		}
+		NB_MSG := float64(len(ts2) - nbPtsDiscard)
 		trput[i] = NB_MSG / seconds
 	}
 	return trput, nil
@@ -139,12 +136,16 @@ func compareNbMsgPerSec(confs []Config) error {
 		return err
 	}
 	for i, c := range confs {
-		trput, err := computeNbMsgPerSecFiles(c.files, c.abscis, c.nbPtsDiscard, c.ndata, c.abscisIsNb)
+		trput, err := computeNbMsgPerSecFiles(c.files, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, trput, "NbMsgPerSec")
-		if err = plotfunc.AddWithLineXY(c.abscis, trput, c.legend(), i, p); err != nil {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		if err = plotfunc.AddWithLineXY(x, trput, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
@@ -156,19 +157,24 @@ func compareNbMsgPerSec(confs []Config) error {
 // files : files to parse
 // sizes : files corresponding abcissa
 func drawNbMsgPerSecFiles(c Config) error {
-	trput, err := computeNbMsgPerSecFiles(c.files, c.abscis, c.nbPtsDiscard, c.ndata, c.abscisIsNb)
+	trput, err := computeNbMsgPerSecFiles(c.files, c.nbPtsDiscard)
 	if err != nil {
 		return err
 	}
 	base := filepath.Base(c.root)
-	return drawPointsXY(c.abscis, trput, c.xlabel, "nb of msg / s", base+c.title, base+"_nbmespersec.png")
+	if isNumDot(c.abscis[0]) {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		return drawPointsXY(x, trput, c.xlabel, "nb of msg / s", base+c.title, base+"_nbmespersec.png")
+	} else {
+		return drawBar(c.abscis, trput, []string{c.xlabel}, "nb of msg / s", "Messages / s", base+"_nbmespersec.png")
+	}
 }
 
 // Compute the throughput for each file
-func computeThoughputFiles(files []string, sizes []float64, mb float64, ndata, nbPtsDiscard int,
-	abscisIsNb, abscisIsSz bool) ([]float64, error) {
-	SIZE_MSG := mb                          // default message size in Mb
-	NB_MSG := float64(ndata - nbPtsDiscard) // default number of messages sent
+func computeThoughputFiles(files []string, sizes []float64, nbPtsDiscard int) ([]float64, error) {
 	trput := make([]float64, len(files))
 	for i, f := range files {
 		ts1, ts2, err := parser.ParseData(f)
@@ -176,12 +182,8 @@ func computeThoughputFiles(files []string, sizes []float64, mb float64, ndata, n
 			return nil, err
 		}
 		seconds := float64(ts2[len(ts2)-1]-ts1[nbPtsDiscard]) / 1.e9
-		if abscisIsNb {
-			NB_MSG = sizes[i]
-		}
-		if abscisIsSz {
-			SIZE_MSG = sizes[i] / 1000. // size en Mb
-		}
+		NB_MSG := float64(len(ts2) - nbPtsDiscard)
+		SIZE_MSG := sizes[i] / 1000. // size en Mb
 
 		trput[i] = NB_MSG * SIZE_MSG / seconds
 	}
@@ -195,13 +197,26 @@ func compareThroughputs(confs []Config) error {
 	if err != nil {
 		return err
 	}
+	var sizes []float64
 	for i, c := range confs {
-		trput, err := computeThoughputFiles(c.files, c.abscis, c.mb, c.ndata, c.nbPtsDiscard, c.abscisIsNb, c.abscisIsSz)
+		if c.abscisIsSz {
+			sizes, err = sliceutil.StrToF64(c.abscis)
+			if err != nil {
+				return err
+			}
+		} else {
+			sizes = sliceutil.FillF64(c.kb, len(c.files))
+		}
+		trput, err := computeThoughputFiles(c.files, sizes, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, trput, "Throughput")
-		if err = plotfunc.AddWithLineXY(c.abscis, trput, c.legend(), i, p); err != nil {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		if err = plotfunc.AddWithLineXY(x, trput, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
@@ -212,16 +227,32 @@ func compareThroughputs(confs []Config) error {
 // Compute the throughput for every dataset and draw it
 // files : files to parse
 // sizes : files corresponding abcissa
-// func drawThroughputsFiles(files []string, sizes []float64, nbPtsDiscard int, xlabel, title, outPng string, abscisIsNb,
-// abscisIsSz bool, mb float64, ndata int) error {
 func drawThroughputsFiles(c Config) error {
-	trput, err := computeThoughputFiles(c.files, c.abscis, c.mb, c.ndata, c.nbPtsDiscard, c.abscisIsNb, c.abscisIsSz)
+	var sizes []float64
+	var err error
+	if c.abscisIsSz {
+		sizes, err = sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+	} else {
+		sizes = sliceutil.FillF64(c.kb, len(c.files))
+	}
+	trput, err := computeThoughputFiles(c.files, sizes, c.nbPtsDiscard)
 	if err != nil {
 		return err
 	}
 	print(c.abscis, trput, "Throughput")
 	base := filepath.Base(c.root)
-	return drawPointsXY(c.abscis, trput, c.xlabel, "nb of Mb / s", base+c.title, base+"_throughputs.png")
+	if isNumDot(c.abscis[0]) {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		return drawPointsXY(x, trput, c.xlabel, "nb of Mb / s", base+c.title, base+"_throughputs.png")
+	} else {
+		return drawBar(c.abscis, trput, []string{c.xlabel}, "nb of Mb / s", "Throughput", base+"_throughputs.png")
+	}
 }
 
 // call ParseFile (with the given filename)
@@ -319,12 +350,16 @@ func compareMeansErr(confs []Config) error {
 		return err
 	}
 	for i, c := range confs {
-		means, devs, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
+		means, devs, err := computeMeansErrFiles(c.files, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, means, "MeansErr")
-		if err = plotfunc.AddWithErrXY(c.abscis, means, devs, c.legend(), i, p); err != nil {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		if err = plotfunc.AddWithErrXY(x, means, devs, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
@@ -340,12 +375,16 @@ func compareMeansLine(confs []Config) error {
 		return err
 	}
 	for i, c := range confs {
-		means, _, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
+		means, _, err := computeMeansErrFiles(c.files, c.nbPtsDiscard)
 		if err != nil {
 			return err
 		}
 		print(c.abscis, means, "Means")
-		if err = plotfunc.AddWithLineXY(c.abscis, means, c.legend(), i, p); err != nil {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		if err = plotfunc.AddWithLineXY(x, means, c.legend(), i, p); err != nil {
 			return err
 		}
 	}
@@ -354,7 +393,7 @@ func compareMeansLine(confs []Config) error {
 }
 
 // Compute the means and deviations for each file
-func computeMeansErrFiles(files []string, sizes []float64, nbPtsDiscard int) ([]float64, []float64, error) {
+func computeMeansErrFiles(files []string, nbPtsDiscard int) ([]float64, []float64, error) {
 	means := make([]float64, len(files))
 	devs := make([]float64, len(files))
 	for i, f := range files {
@@ -380,11 +419,19 @@ func computeMeansErrFiles(files []string, sizes []float64, nbPtsDiscard int) ([]
 // save the plot to a PNG file
 func drawMeansErrFiles(c Config) error {
 	base := filepath.Base(c.root)
-	means, devs, err := computeMeansErrFiles(c.files, c.abscis, c.nbPtsDiscard)
+	means, devs, err := computeMeansErrFiles(c.files, c.nbPtsDiscard)
 	if err != nil {
 		return err
 	}
-	return drawErrsXY(c.abscis, means, devs, c.xlabel, "times (ms)", base+c.title, base+"_mean_err.png")
+	if isNumDot(c.abscis[0]) {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		return drawErrsXY(x, means, devs, c.xlabel, "times (ms)", base+c.title, base+"_mean_err.png")
+	} else {
+		return drawBar(c.abscis, means, []string{c.xlabel}, "times (ms)", "Mean latency", base+"_mean_err.png")
+	}
 }
 
 // Draw the x,y  for every dataset with deviation as Y error bars
@@ -431,7 +478,15 @@ func drawMeansFiles(c Config) error {
 		means = append(means, ave)
 	}
 	base := filepath.Base(c.root)
-	return drawLinearFit(c.abscis, means, c.xlabel, "times (ms)", base+c.title, base+"_mean.png")
+	if isNumDot(c.abscis[0]) {
+		x, err := sliceutil.StrToF64(c.abscis)
+		if err != nil {
+			return err
+		}
+		return drawLinearFit(x, means, c.xlabel, "times (ms)", base+c.title, base+"_mean.png")
+	} else {
+		return drawBar(c.abscis, means, []string{c.xlabel}, "times (ms)", "Mean latency", base+"_mean.png")
+	}
 }
 
 // Draw the data
@@ -443,6 +498,21 @@ func drawPointsXY(x, y []float64, xlabel, ylabel, title, outPng string) error {
 	}
 	// Add the data
 	if err = plotfunc.AddWithPointsXY(x, y, "", 0, p); err != nil {
+		return err
+	}
+	// Save the plot to a PNG file.
+	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, outPng)
+}
+
+// Draw the data as barchart
+func drawBar(x []string, y []float64, xlabel []string, ylabel, title, outPng string) error {
+	// Create the plot
+	p, err := plotfunc.NewPlot(title, "", ylabel)
+	if err != nil {
+		return err
+	}
+	// Add the data
+	if err = plotfunc.AddBarChart(x, y, xlabel, p); err != nil {
 		return err
 	}
 	// Save the plot to a PNG file.
@@ -495,4 +565,20 @@ func drawFile(filename string, nbPtsDiscard int) error {
 	plotfunc.AddHLine(ave, float64(nbPtsDiscard), float64(len(fvalues)), "", color.Black, p)
 	// Save the plot to a PNG file.
 	return p.Save(10*vg.Centimeter, 10*vg.Centimeter, filepath.Base(filename)+".png")
+}
+
+// Returns true if the string is a number, either int or float (very fast)
+func isNumDot(s string) bool {
+	dotFound := false
+	for _, v := range s {
+		if v == '.' {
+			if dotFound {
+				return false
+			}
+			dotFound = true
+		} else if v < '0' || v > '9' {
+			return false
+		}
+	}
+	return true
 }
